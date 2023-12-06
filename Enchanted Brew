@@ -1,0 +1,522 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <fstream>
+using namespace std;
+
+// Function to get the price of drink
+double getPrice(const string& flavor, const string& size) {
+    double flavorPrices[] = {3.00, 2.80, 2.60};
+    double sizePrices[] = {0.2, 0.4, 0.5};
+
+    double basePrice = 0.0;
+
+    // Assign base prices based on flavor
+    int flavorIndex = stoi(flavor) - 1;
+    if (flavorIndex >= 0 && flavorIndex < 3) {
+        basePrice = flavorPrices[flavorIndex];
+
+        // Adjust base price based on size
+        int sizeIndex = stoi(size) - 1;
+        if (sizeIndex >= 0 && sizeIndex < 3) {
+            basePrice += sizePrices[sizeIndex];
+
+            // Apply taxes, at 6%
+            basePrice *= 1.06;
+
+            // Two decimal places :)
+            basePrice = round(basePrice * 100) / 100;
+
+            return basePrice;
+        }
+    }
+
+    return -1; // Error: Invalid flavor or size
+}
+
+    int main() {
+
+        // Character portraits to display with diaglouge.
+        string portrait = R"(
+                                                  ...
+                                              ::.   ..*:;.
+                   @@;       @@@            :;
+                  @@@@@:    @@#@@[        :]    :#?
+                *@#   ]@@ *@@   :@@     ::#.   :##]:... ..**
+               *@;      ]@@;      @@   ;  @    ;.
+               @*       ]@#@       #@  . ]@)      .?]?;((]]#]]:
+              @?       #@  @@]   .  ?@# *]#@:   *;:.        .]@
+             @@        @   . @@       @;    *::];              ::
+            .@             ]: {@. ..* *@.      .:: ..*::::.     *;
+            @         :. .      . .:;;.]@         :@@]](?:*;;:.  .*
+                   .]:  ].              ;:          ]];[;:.   ..  :
+                  ]?   #                             ##:   ;.   ..
+                .].   #                       .     . @#?*  :.   ;.
+               *;    ?*           .           *[.  . ..@#]]  :.   ]
+              ?.     ?            [ .           ?.  .# ]@]]#. ?   @
+           *;?      :*            @              **]@  ;##]]# .:  @
+      .;::* :.      #            :@@             :@]  .? #(]#: ? ##
+            .       @            { ]@*            ?:  ]  #[(#: ;*{
+           :       .@           .]  :@:    .        .;( ]#?(]  ;
+           ?;      @@           ]     #@??              :@])]  ?
+          *@.     :@@?        .#@;[(]?:;[@@]*   [[?;:;?[#@]]( .
+          ]#      @].#]       #].::*      :@]@#?[]]@@@#@##@#]:# *
+          @#     :@ :]#:   ?:#]            .  .::. (]]@@[?:.*:*:#
+          @:     @@]   {   .@;   ;# ?@@@@@[]       ]:     .??  ]
+          {     ]@#@  .[#:  ]     [@@@@##@@@:      [   ;##@? ;(
+            .  [:;#@]@@@@@@#]     @@;      @:      ###]#:   ?:
+              ]] .@]@@ [  #@      :##]     ][      @?.].  ;;      .
+              ;   @### ]]   :       (#     #?      #.   ([   *  ..
+                  ##]@. ]{               .;(       #**[@@.  :@@#[
+                  ]]]#@ .   :;:     ..:;;?;.       @@#]]#; ..
+                 [;][{@;;  ]{:.      ...  :]#     )@@]?{#. *
+                 ].][]@ .. :.         . .];]:     @@@((])::
+                ?] ]{]@                    ::    .## {#@*].
+               :.; [][@#       .           {*   :   .@]  ;
+                 .**]{]@]*     ..         #?  .;
+                  ].]#@  .;[:          ;]@#. [#
+                  ]?[@@      *;;* .;[@@#@@:])#[
+                   #);]              ]]]@:**.;?
+                   ?@.               #:*.**:..:
+                    #]               @?;;.     ..
+                     ;         ?#]?]?]    ](]@@@@@@
+                             @@@@@##?   ]# [@@@@@@@@
+                            @@#]#   .  ?  #@@@@@@@@@@
+                          ]@@ ][      ?  @@@@@@@@@@@@
+ _____________
+|   Syplhie   |
+-----------------------------------------------------------------------------------------------------------------------
+
+)";
+        string end = R"(
+
+-----------------------------------------------------------------------------------------------------------------------)";
+
+        // Title Screen
+        ofstream outputFile("gameMenu.txt");
+        if (outputFile.is_open()) {
+            outputFile << R"(
+
+
+
+
+
+
+
+
+                                                             ................
+                                    .,,;*?({}}[[[[[[[[[[[[[[[}}[[}}[}}[[}[[[[[[[[[[[[[}}}((?;;;,,
+                               ;?}}}{(?*;,,...                                        ....,::;;?((}}{!*:
+                             ?#[::                                                               ;;[#[:::::,,..
+                             ,!!#;;(!}[}}!{??*;;;::,,,.....                   .......,,:::;;**?({!}[}}{*?#}***??{[}}..
+                             ..*[;     ..,,:;;*??({{!}}}}[[[[[[[[[[[[[[[[[[[[}}}}}!{((?**;::,,.      ;#???((?; .::#(!
+                               }#?                                                              ;#[!       ;;#   ;#*.
+                                 #::.                                                           *}[;          @! ;@;
+                                 ::#*,                                                        ;?[;     ..;;?{}?; .*[[..
+                                   .*#*                   Enchanted Brew                   ,(#}*;;*?(??**;;*([[?
+                                    .,*@..                                              .?#[;;;;;***;;;;**?*::.
+                        ..:*({[[[[[[}?***@*,.                                      ::#@[??((@#[!*;.
+                     ;;#(?*,,..             .?#[?                              ..!!#}{..              ..,;*(}[,,.
+                    ?#?                 ,,:;;;?!}#@?;;;::::,,,,,..,,,.,,,:::;;;*(#@}{*;;;,                   @!
+                     .*@@}?;;;;:,,..   ;@*,   ,(}[}}}}}}}}}}}}}}}}}}}}}}}{}[(;:   ,;(@  ....,::;;*?{#@#;
+                        ..:?[#@@[[}!(?(}[##[}(}[#@@@@@@##[}}!![##[}!*((}}[#@@[(*
+                               ...::;*??((????;::,,,..............  ..  ................,,::;;?(?????*;;:,,..
+                                            .;#@@@@#######@@@@@*
+                                                      ....,,,,,:::::;;;;;;;::::,,,.....
+
+
+
+                                                         Press Enter to Begin
+
+)";
+            outputFile.close();
+        } else {
+            cerr << "Error creating the text file.\n";
+            return 1; // Return an error code
+        }
+
+        // Read and print content from the text file
+        ifstream inputFile("gameMenu.txt");
+        if (inputFile.is_open()) {
+            string line;
+            while (getline(inputFile, line)) {
+                cout << line << std::endl;
+            }
+            inputFile.close();
+        } else {
+            cerr << "Error opening the text file for reading.\n";
+            return 1; // Return an error code
+        }
+
+        // Print the multiline string
+        //cout << fairyPortraitDefault << endl;
+
+
+        string playerChoice;
+        int affectionLevel = 0;
+
+        // If you tell a character you don't want to talk, they won't (or will talk less)
+        int silence = 0;
+
+
+        cin.get();
+        cout << "\n";
+        cout
+                << "The soft chime of the cafe door echoes as you step into the cozy little place,\nthe scent of freshly ground coffee beans enveloping you. You scan the room,\nsearching for a place to sit, and your eyes land on a quaint corner with an inviting atmosphere.\n\n";
+        cout << R"(As you make your way to the counter to place your order, you notice the
+barista behind the counter. An elf with delicate features and soft green hair.
+What truly sets her apart are the two antennae that adorn the top of her head,
+adding a touch of whimsy to her calm demeanor. She's engrossed in a book,
+her attention split between the captivating story and the cafe patrons.)";
+        cout << "\n";
+        cin.get();
+
+        // Storyline
+        cout
+                << "You approach the Elf, and notice a name tag labeled Sylphie. \nShe carefully sets down her book, making a mental note of the page shes on and greets you.\n";
+        cin.get();
+        cout << portrait << "\"Welcome to Enchanted Brew\"\n\"I'm Syplhie. How may I assist you today?\"\n" << end;
+        cout << "\n";
+        cin.get();
+        // Dialogue before ordering
+        cout << "Options:\n";
+        cout << "1. Compliment her calm demeanor and ask for her recommendations.\n";
+        cout << "2. Make a rude comment about her strange antennae.\n";
+        cout << "3. Apologize and mention you're in a rush.\n";
+        cout << "\n";
+
+        // While loop to repeat if you enter wrong input
+        while (true) {
+            getline(cin, playerChoice);
+            cout << "\n";
+
+            if (playerChoice == "1") {
+                cout << R"(You return Sylphie's greeting and compliment her calm and collected demeanor,
+then ask if she has any recommendations.)";
+                cout << portrait << R"(Sylphie's calm eyes meet yours, and she suggests,
+"If you enjoy soothing flavors, I recommend our Moonlight Sonata. It's a white tea with hints
+of lavender and a touch of honey. A truly serene choice.")" << end;
+                cout << "\n";
+                affectionLevel++;
+                break;
+            } else if (playerChoice == "2") {
+                cout << "You make a rude comment about Sylphie's antennae, which you find strange for an elf.\nShe looks a bit concerned for a moment, then simply gestures \ntowards the menu waiting for you to order";
+                affectionLevel--;
+                break;
+            } else if (playerChoice == "3") {
+                cout << "You apologize and mention that you're in a rush.\nSylphie nods, then suggests,\n" << portrait
+                     << "\"If you enjoy soothing flavors, I recommend our Moonlight Sonata. It's a white tea with hints of lavender and a touch of honey. A truly serene choice.\"\n"
+                     << end;
+                cout << "\n";
+                break;
+            } else {
+                cout << "Please enter a valid option (1, 2, or 3).\n";
+            }
+        }
+        cout << "\n";
+        cin.get();
+
+        // Drink Selection
+        cout << "Choose a drink:\n";
+        cout << "1. Matcha Latte\n";
+        cout << "2. Moonlight Sonata\n";
+        cout << "3. Raspberry Tea\n";
+        cout << "\n";
+
+        while (true) {
+            getline(cin, playerChoice);
+            cout << "\n";
+
+        if (playerChoice == "1") {
+            cout << portrait;
+            cout << "\"Matcha Latte? Good choice. A friend of mine orders that all the time.\nWhat size would you like?\"\n";
+            break;
+        } else if (playerChoice == "2") {
+            cout << portrait;
+            cout << "\"Wonderful, I'm sure you'll love it, it's my favorite.\nWhat size would you like?\"\n";
+            affectionLevel++;
+            break;
+        } else if (playerChoice == "3") {
+            cout << portrait;
+            cout << "\"Raspberry Tea? Good choice. A friend of mine orders that all the time.\nWhat size would you like?\"\n";
+            break;
+        }
+        else {
+            cout << "Please enter a valid option (1, 2, or 3).\n";
+        }
+        }
+
+        cout << end;
+        cout << "\n";
+        string flavor = playerChoice;
+
+        cin.get();
+        cout << "\n";
+
+        cout << "Choose a size:\n";
+        cout << "1. Small\n";
+        cout << "2. Medium\n";
+        cout << "3. Large\n";
+        cout << "\n";
+
+        while(true) {
+            getline(cin, playerChoice);
+            cout << "\n";
+
+            if (playerChoice == "1" || playerChoice == "2" || playerChoice == "3") {
+                break;
+            } else {
+                cout << "Please enter a valid choice (1, 2, or 3).\n";
+            }
+        }
+
+        string size = playerChoice;
+
+
+        cout << portrait;
+        cout << "\"Okay, I'll get to work on that for you now.\"\n";
+        cout << end;
+        cout << "\n";
+        cin.get();
+
+        // Chat while making the order
+        cout << "Sylphie engages you in thoughtful conversation while she prepares your drink. \nShe shares stories about the different teas on the menu, each with its own enchanting tale.\nSylphie mentions her love for creating a tranquil space within the bustling city, \nwhere patrons can find a moment of peace.";
+        cin.get();
+        cout << "\n";
+
+        // Respond
+        cout << "Options:\n";
+        cout << "1. Ask her about the book she was reading when you got here.\n";
+        cout << "2. Interrupt her and say you would really rather not talk.\n";
+        cout << "3. Nod along, simply half listening.\n";
+        cout << "\n";
+
+        while (true) {
+        getline(cin, playerChoice);
+        cout << "\n";
+
+        if (playerChoice == "1") {
+            cout << "You ask her about the book she had set aside earlier, she smiles softly and picks it up, \n"
+                 << portrait
+                 << "\"Oh, this? It's a magical tale about a world where dreams intertwine with reality. \nI find solace in stories that transport me to enchanting realms.\"\n"
+                 << end;
+            cout << "\n";
+            affectionLevel++;
+            break;
+        } else if (playerChoice == "2") {
+            cout
+                    << "You interrupt her, letting her know you're not here for conversation, just a drink. \nHer ears twitch in frustration, but she doesn't say anything else.";
+            affectionLevel--;
+            silence--;
+            break;
+        } else if (playerChoice == "3") {
+            cout << "You nod along, not really listening, not for lack of trying you just don't fully \nunderstand what she's talking about. She doesn't appear to notice, seems she really enjoys \ntalking about these sorts of things.";
+            break;
+        }
+        else {
+            cout << "Please enter a valid option (1, 2, or 3).\n";
+        }
+        }
+
+        cin.get();
+        cout << "\n";
+
+        // More dialogue, skipped if rude
+        if (playerChoice != "2") {
+            cout << portrait
+                 << "\"If you're ever looking for a captivating read, I'd be happy to recommend some enchanting stories. \nThere's a certain magic in getting lost within the pages of a good book.\""
+                 << end;
+            cout << "\n";
+            cin.get();
+            cout << "\n";
+
+            cout << "Options:\n";
+            cout << "1. You tell her you would love a recommendation.\n";
+            cout << "2. You tell her you don't want a recommendation from her in a rude tone.\n";
+            cout << "3. You tell her you don't want a recommendation right now.\n";
+            cout << "\n";
+
+            while (true) {
+                getline(cin, playerChoice);
+                cout << "\n";
+
+            if (playerChoice == "1") {
+                cout << "You tell her you would greatly appreciate a recommendation, in fact you think you'll \nprobably go pick up the book Sylphie has from the library next door sometime.\nShe smiles softly and tells you the title of the book.";
+                affectionLevel++;
+                break;
+            } else if (playerChoice == "2") {
+                cout << "You rudely tell her that you don't want a recommendation in a way that implies you \ndislike her taste in books. \n";
+                cout << portrait << "\"Oh, well nevermind then\"" << end;
+                cout << "\n";
+                affectionLevel--;
+                silence--;
+                break;
+            } else if (playerChoice == "3") {
+                cout << "You tell her you really don't have time to pick up a book right now, but maybe some other time.\n";
+                cout << portrait << "\"Maybe, if you ever want one just ask next time you're here\"" << end;
+                cout << "\n";
+                break;
+            }
+            else {
+                cout << "Please enter a valid option (1, 2, or 3).\n";
+            }
+            }
+
+            cin.get();
+            cout << "\n";
+
+            // More dialogue, skipped if rude (again)
+            if (playerChoice != "2") {
+                cout << portrait << R"("I'm almost done", she turns to grab a lid for your drink,
+"is there anything else you would like")" << end;
+                cout << "\n";
+                cin.get();
+
+                cout << "Options:\n";
+                cout << "1. Actually I was wondering...\n";
+                cout << "2. No thank you.\n";
+                cout << "\n";
+
+                while(true){
+                getline(cin, playerChoice);
+                cout << "\n";
+
+                if (playerChoice == "1") {
+                    cout
+                            << "You ask Sylphie if she would like to go to the Library next to the cafe, \nit would be nice to have someone to read with and to hear more of her recommendations\n";
+                    cin.get();
+                    if (affectionLevel >= 3) {
+                        cout << portrait
+                             << "\"The library? That sounds like a lovely idea. I could use some fresh inspiration \nfor my reading list. Sure, I'd love to join you.\"\n"
+                             << end;
+                        cout << "\n";
+                        cin.get();
+                        cout << R"(A gentle sense of contentment washes over you as Sylphie agrees to join you at the library.
+There's a quiet joy in the simplicity of the invitation and the
+prospect of sharing a peaceful moment surrounded by books.)";
+                        affectionLevel += 5;
+                    } else {
+                        cout << portrait
+                             << "\"Oh, thank you for the invitation but, libraries can be a bit... overwhelming.\n"
+                             << end;
+                        cout << "\n";
+                        cin.get();
+                        cout << R"(A gentle acceptance settles within you as Sylphie kindly declines the invitation to the library.
+There's an understanding that some prefer the calm sanctuary of their
+own space, and you respect Sylphie's choice.)";
+                    }
+                    break;
+                } else if (playerChoice == "2") {
+                    cout << portrait << "\"Alright then, just a moment please.\"" << end;
+                    cout << "\n";
+                    break;
+                }
+                else {
+                    cout << "Please enter a valid option (1 or 2).\n";
+                }
+                }
+            }
+        } else if (playerChoice == "2") {
+            cout << "Sylphie's annoyance, apparent only by the occasional frustrated flick of her ears, \ndoesn't stop her from quickly completing your order.\n\n";
+            cin.get();
+            cout << R"(You can't help but take in the busy yet tranquil scenery around you.
+The soft hum of conversations weaves a melodic tapestry, blending seamlessly with the
+gentle clinking of cups and the soothing hiss of the espresso machine.
+
+You watch as a group of friends laughs over steaming mugs, their faces lit by the warm
+glow of the cafe's enchanting lights. The atmosphere is vibrant, yet there's an undercurrent
+of calm that wraps around the bustling scene, creating a haven for those seeking both
+excitement and solace.)";
+        }
+        cout << "\n";
+        cin.get();
+
+        double totalPrice = getPrice(flavor, size);
+
+        if (affectionLevel >= 5) {
+            cout
+                    << "Sylphie smiles kindly as she hands you your drink and receipt, \nand you notice a small piece a paper tucked within,";
+            cin.get();
+            cout << portrait << "\"I hope you like it, that'll be $" << totalPrice << ".\"";
+        } else if (silence < 0) {
+            cout << "Sylphie hands you your drink. '";
+            cin.get();
+            cout << portrait << "\"Your total is $" << totalPrice << ".\"";
+        } else {
+            cout << "Sylphie hands you your drink.";
+            cin.get();
+            cout << portrait << "\"I hope you like it, that'll be $" << totalPrice << ".\"";
+        }
+        cout << end;
+        cout << "\n";
+        cin.get();
+
+        cout << R"(;(?;;;;():;;?                   *;      . .     (@);  ?((?(???((()(?))())((??????;??;;???;?;;;;;;;;;;;;:;;;);:
+;?;;;;:?)::;;                    ;              ?@);  :(????;????(??))?((?????;;;;;?;;;??;;;:;:;:::::;::*::{::
+;??;;;;?):;;?.                  .?      .       ?@);  ;???{((((?{)(?))(()((??????;;??;??);;;;;;;;;;;;;;:;;;(:;
+;??;;;;?);:;;*   ..              (      .       ;@)?  :(?(((({()))(())(){(?(??????;???;()?;?;?;;;;;;;?;;;;;):;
+;;?;;;;;);::;:.                  (      .       ;@)?  :?(?)((()))))()))))))((??????????????;?;;;;;;;;;;;;;?(::
+;;?;;;:;)?:;;:                   ?      ..      ;@)(  *(?())()()))))@@)){?;?((???????(((??????;?;;;;;;;;;;?(:;
+;;?;;:::)?::;:                   ;.     . .     ;@@)  *(??){)))))@@(;:***..;)((??;???(()(??;?;?;;;;;;;;;?;?(::
+;;;;:;::((:;;;                   ;.     .       *({?  .(?()))))@@?. .;:;:;.;))@@)?;??{?)??(?????;;;;;;;;;;??*;
+?:;;;:::?(::;;                   ;:     .       .;??  *((()))@):  :*;);::?:*))))@@)?(){{)?(????;;;;;;;;;;;??::
+;;;;:;::?)*::;                   ;:             .))(  *{?)))@)   :(?:)(::?;*?@)??)@@))))))(?????;;;?;;;;;;??:;
+;;;;;::*;):*:;                   :;     .       .@@). .())))@* :;;(?;)):*;?:?@)((())@))))))(?????;;;;;;;?;(?:;
+;;:;:::::):::;.                  ::             .)@)  .()))@).:.((;?;));.;;?;@))()({)@))))){((??;?;?;;;;??(?:;
+;:;;;::*:);*::*                                 .)@)  .())@@  ..))???()?::;;;)@)))))))@){))))((??;?;?;?;?;)?:;
+:;::;:*:.);*:;.                        .         ))).  ()))@   ;))(?;()?::;;;{)))){))))@)))))){(????;?;;;;);:;
+;:;:;::*.)?.::*                           .....  )@@:  {@))@? *?)?)(;?)?;;;:;?))))))))))@{))))){(??;;;;;;;);;;
+:;::::::.(?.*:*                                 .));   *;))@@: ;?)?);?)?:?;::;)))))))@)()))))){(()(?;?;;;;)?;;
+::;::::**?).*:: .   .                                .;?))@)@)..?))?(;)?;??:::()@))))))?)))))))((({???;;?;);;?
+::::::*:.;)..::  .                               .:?)@@@@)))@?(*:)@)?((;:?(;*:;)@))))@))()))))))((((??;;;;{;;;
+:::*::***:).**:                             .:?())@@@@@@@@@@@;));)@@@@@;:?(;::;(@)))))))({@))))))()({((;;;):;;
+::::::*:*:)..::     .                  .:()))))))@@@@@@@@@@@@))@; ....;(({;;:::;)))@)))));))))))))({()(???);;;
+::;:::****)..*: .  .?::*.         .*?()))??:*..                .       *@)(;;*:;)))))))))(;))))))))({))???);;;
+::::*::***):.**. .:;:          :;((?;.                            *;:. .;;?)))())))@)))))@?;)))))))){){(??);;;
+::::*::*:.);..*.          ..;();.                                 .::       ;?@@)))@)))))))(;;)))))){))?(()??;
+:;:::;:**.{; .*.     ..:*:?)):                                 .  .;:          ;@@)))@)))))@)?:;?)))))((?()???
+;:;:::;...;;... .*::;::;?)@:                                      .??.;?;;:..    ?@))@))()){@))))))))))??()???
+:::;::::)@(. .:;;;:::?()@@.                                         ...*:??;*..   )))@))))?))))){))))))(()((??
+;:;:;.:)@))(******;?))))))                                              ...   .   ?@)))))()))@))({))))(()));??
+:::;;::;..:@...:;{))))()))?                                                  .    )@))))(@))))))))))))(({)((?(
+;:::;::*..:)*:()))){))))))@);                                                   .)@@@)@)@))))))))))))))))){(((
+::::::::*:;)()))))))))))))))@@(*                                              .?@@@@)@)@))@))))))))))))))){)((
+;::::::;;;()))))))))))))))))((@@@)?.                                      *;))@@@))))(??(()))))))))))))))))){?
+;:::;?;(()))))))))))(){)()((;;)?{@@@@@@){?::...              ....**:;?()))))))((??????;;:;;;;(()))))))))))))()
+)";
+        cout << "\n";
+
+        if (flavor == "1") {
+            cout << R"(Nestled in the serene and secluded corner, you cradle the warm cup of matcha latte.
+The vibrant green of the drink seems to mirror the tranquility of your
+surroundings. With each sip, the creamy blend of matcha and the delightful
+pop of boba pearls transport you into a peaceful state. The bustling cafe
+noises fade into the background, leaving you immersed in a moment of serene
+indulgence.)";
+        } else if (flavor == "2") {
+            cout << R"(In the serene and secluded corner, you gently hold the delicate
+cup of Moonlight Sonata. The pale hue of the tea reflects the
+tranquility of the space around you. As the soothing blend of
+white tea with hints of lavender and honey touches your lips,
+a sense of calm descends. The bustling cafe noises fade, replaced
+by a serene melody, as you lose yourself in the gentle flavors of
+the tea, finding solace in each sip.)";
+        } else if (flavor == "3") {
+            cout << R"(Nestled in the serene and secluded corner, you cradle the vibrant
+cup of Raspberry Tea. The crimson hue of the tea reflects the peaceful
+ambiance around you. With each sip, the tangy sweetness of raspberries
+intertwines with the comforting warmth of the tea, creating a delightful
+harmony on your palate. Amidst the bustling cafe sounds, you find a
+moment of tranquility, indulging in the serene flavors of the
+raspberry-infused tea.)";
+        }
+        cin.get();
+
+        cout << R"(--------------------------------------------------------------------
+
+Thank you for playing Enchanted Brew, start over to play again :)
+
+--------------------------------------------------------------------)";
+        return 0;
+    }
+
